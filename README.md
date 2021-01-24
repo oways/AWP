@@ -1,10 +1,10 @@
-## AWP
 
-### What's Akamai WAF Python based Collector (AWP):
+
+#### What's Akamai WAF Python based Collector (AWP):
 
 Connector shipping logs from Akamai WAF to SEIM solutions using syslog.
 
-## How to use AWP?
+#### How to use AWP?
 
 ```
 

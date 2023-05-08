@@ -1,0 +1,3 @@
+edgegrid-python
+redis
+configparser

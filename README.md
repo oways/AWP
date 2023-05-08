@@ -13,13 +13,8 @@ git clone https://github.com/oways/AWP.git
 pip3 install -r ruquirements.txt
 
 # Modify the configuration file details
-vim /path/conf/collector.cof
+vim ./conf/collector.cof
 
-crontab -e
-
-# Add run.py path, it will fetch the api every 1 min
-* * * * * /usr/bin/python3 /path/run.py
+python3 main.py
 
 ```
-
-Note: AWP work only with python v3

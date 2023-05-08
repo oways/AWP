@@ -12,7 +12,7 @@ import logging
 if __name__ == "__main__":
 
 	# logger init
-	logger = logging.getLogger("AkamaiWAFPython")
+	logger = logging.getLogger("AWP")
 	if debug == 'On':
 		logger.setLevel(logging.DEBUG)
 	else:

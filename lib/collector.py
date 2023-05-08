@@ -12,7 +12,6 @@ import urllib.parse
 import time
 from .conf import *
 import redis
-from .logger import log
 
 def decoder(data):
 	return str(base64.b64decode(urllib.parse.unquote(data)))

@@ -30,6 +30,8 @@ section = config.get('auth', 'section')
 
 #[redis]
 redisServer = config.get('redis', 'server')
+if redisServer:
+    redisServer = redisServer.replace("'",'')
 redisKey = config.get('redis', 'key')
 redisPort = config.get('redis', 'port')
 

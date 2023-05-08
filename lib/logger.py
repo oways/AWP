@@ -15,7 +15,7 @@ def decoder(data):
 	return base64.b64decode(data).decode('utf-8')
 
 def sendSyslog(data, logger):
-	syslogger = logging.getLogger('AWP')
+	syslogger = logging.getLogger('AkamaiWAFPython')
 	syslogger.setLevel(logging.INFO)
 	handler = SysLogHandler(address = (syslogHost, syslogPort), facility=SysLogHandler.LOG_LOCAL5)
 	# Log format
@@ -23,8 +23,7 @@ def sendSyslog(data, logger):
 	handler.setFormatter(formatter)
 	syslogger.addHandler(handler)
 	syslogger.info(data)
-	if debug:
-		logger.debug('Syslog sent', 'debug')
+	logger.debug('Syslog sent', 'debug')
 	time.sleep(0.005)
 
 def syslog(redisContext,logger):
@@ -34,8 +33,7 @@ def syslog(redisContext,logger):
 		try:
 			data = R.lpop(redisContext['key'])
 			if data:
-				if debug:
-					logger.debug(data,'debug')
+				logger.debug(data,'debug')
 				sendSyslog(decoder(data),logger)
 		except Exception as e:
 			logger.error(e)

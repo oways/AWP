@@ -51,25 +51,27 @@ def collect(redisContext, logger):
 				offset = offset.decode("utf-8")
 			url = 'https://{}/siem/v1/configs/{}?offset={}&from={}&to={}&limit={}'.format(edgerc.get(section, 'host'),configIds,offset,firstTS,currentTS,limit)
 			result = s.get(url)
-			content = result.content.decode("utf-8")
-			data = []
-			lines = content.splitlines()
-			lastLine =  json.loads(lines[len(lines)-1])
-			for l in lines[:-1]:
-				j = json.loads(l)
-				tags = decoder(j['attackData']['ruleTags'])
-				# Filtering logs for only builtin Akamai web attacks and polices (ex. sqli, xss & rce)
-				for f in filter:
-					if f in tags:
-						data.append(decodeData(j))
-						break
-			# update new offset in redis
-			R.set('offset', lastLine['offset'])
-			# Store in redis
-			for d in data:
-				logger.debug(f"Added to redis: {d['httpMessage']['requestId']}")
-				R.rpush(redisContext['key'], encoder(d))
-			time.sleep(5)
+			if 'application/json' in result.headers.get('content-type', ''):
+				content = result.content.decode("utf-8")
+				data = []
+				lines = content.splitlines()
+				if len(lines) > 0:
+					lastLine =  json.loads(lines[len(lines)-1])
+					for l in lines[:-1]:
+						j = json.loads(l)
+						tags = decoder(j['attackData']['ruleTags'])
+						# Filtering logs for only builtin Akamai web attacks and polices (ex. sqli, xss & rce)
+						for f in filter:
+							if f in tags:
+								data.append(decodeData(j))
+								break
+					# update new offset in redis
+					R.set('offset', lastLine['offset'])
+					# Store in redis
+					for d in data:
+						logger.debug(f"Added to redis: {d['httpMessage']['requestId']}")
+						R.rpush(redisContext['key'], encoder(d))
+			time.sleep(15)
 		except Exception as e:
 				logger.error(str(e))
 				

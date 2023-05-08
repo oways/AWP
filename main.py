@@ -8,10 +8,11 @@ from lib.conf import *
 from lib.collector import collect
 from lib.logger import syslog
 import logging
+from logging.handlers import SysLogHandler
 
 if __name__ == "__main__":
 
-	# logger init
+	# logger file init
 	logger = logging.getLogger("AWP")
 	if debug == 'On':
 		logger.setLevel(logging.DEBUG)
@@ -22,6 +23,14 @@ if __name__ == "__main__":
 	handler.setFormatter(formatter)
 	logger.addHandler(handler)
 
+	# syslog logger init
+	syslogger = logging.getLogger('AkamaiWAFPython')
+	syslogger.setLevel(logging.INFO)
+	handler = SysLogHandler(address = (syslogHost, syslogPort), facility=SysLogHandler.LOG_LOCAL5)
+	formatter = logging.Formatter('%(message)r')
+	handler.setFormatter(formatter)
+	syslogger.addHandler(handler)
+
 	# redis connection
 	redisContext = {"server": redisServer, "port": redisPort, "key": redisKey}
 
@@ -31,7 +40,7 @@ if __name__ == "__main__":
 	collector_process.start()
 
 	# Start Query Process
-	logger_process = Process(target=syslog, args=(redisContext,logger))
+	logger_process = Process(target=syslog, args=(redisContext, logger, syslogger))
 	logger_process.daemon = True
 	logger_process.start()
 

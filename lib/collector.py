@@ -36,7 +36,7 @@ def decodeData(j):
 	j['httpMessage']['responseHeaders'] =  urldecoder(j['httpMessage']['responseHeaders'])
 	return j
 
-def collect(redisContext):
+def collect(redisContext, logger):
 	# Updating current timestamp
 	currentTS = str(round(datetime.now().timestamp()))
 	# Connect to Redis
@@ -68,11 +68,10 @@ def collect(redisContext):
 			R.set('offset', lastLine['offset'])
 			# Store in redis
 			for d in data:
-				if debug:
-					log(f"Added to redis: {d['httpMessage']['requestId']}", 'debug')
+				logger.debug(f"Added to redis: {d['httpMessage']['requestId']}")
 				R.rpush(redisContext['key'], encoder(d))
 			time.sleep(5)
 		except Exception as e:
-				log(e)
+				logger.error(str(e))
 				
 

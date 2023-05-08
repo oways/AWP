@@ -10,37 +10,24 @@ from logging.handlers import SysLogHandler
 from .conf import *
 import redis
 
-logger = logging.getLogger("")
-logger.setLevel(logging.DEBUG)
-handler = logging.handlers.RotatingFileHandler(logfile, maxBytes=(1048576*5), backupCount=1)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-def log(e, type='error'):
-	if type == 'debug':
-		logger.debug(str(e))
-	else:
-		logger.error(str(e))
-
 def decoder(data):
 	data = data.decode('utf-8')
 	return base64.b64decode(data).decode('utf-8')
 
-def sendSyslog(data):
-	mylogger = logging.getLogger('AWP_Collector')
-	mylogger.setLevel(logging.INFO)
+def sendSyslog(data, logger):
+	syslogger = logging.getLogger('AWP')
+	syslogger.setLevel(logging.INFO)
 	handler = SysLogHandler(address = (syslogHost, syslogPort), facility=SysLogHandler.LOG_LOCAL5)
 	# Log format
 	formatter = logging.Formatter('%(message)r')
 	handler.setFormatter(formatter)
-	mylogger.addHandler(handler)
-	mylogger.info(data)
+	syslogger.addHandler(handler)
+	syslogger.info(data)
 	if debug:
-		log('Syslog sent', 'debug')
+		logger.debug('Syslog sent', 'debug')
 	time.sleep(0.005)
 
-def syslog(redisContext):
+def syslog(redisContext,logger):
 	# Connect to Redis
 	R = redis.Redis(host=redisContext['server'], port=redisContext['port'])
 	while True:
@@ -48,8 +35,8 @@ def syslog(redisContext):
 			data = R.lpop(redisContext['key'])
 			if data:
 				if debug:
-					log(data,'debug')
-				sendSyslog(decoder(data))
+					logger.debug(data,'debug')
+				sendSyslog(decoder(data),logger)
 		except Exception as e:
-			log(e)
+			logger.error(e)
 
